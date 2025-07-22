@@ -9,7 +9,7 @@ DocChat is an AI-powered document chatbot that allows users to upload documents 
 - 📂 Upload & parse PDFs, DOCX, and TXT files
 - 💬 Ask questions and receive document-specific answers
 - 🧠 Uses vector embeddings for efficient chunk retrieval
-- ⚙️ RAG-based architecture with Langchain & FastAPI
+- ⚙️ RAG-based architecture 
 - 🌐 Full Dockerized backend setup
 - ✅ Clean UI with Tailwind + React + Vite
 
