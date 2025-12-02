@@ -8,3 +8,39 @@ services:
     image: qdrant/qdrant
     ports:
       - 6443:6333
+
+
+
+
+# services:
+#   valkey:
+#     image: valkey/valkey
+#     container_name: valkey
+#     ports:
+#       - "6380:6379"
+#     volumes:
+#       - valkey_data:/data
+
+#   qdrant:
+#     image: qdrant/qdrant
+#     container_name: qdrant
+#     ports:
+#       - "6443:6333"
+#     volumes:
+#       - qdrant_storage:/qdrant/storage
+
+#   server:
+#     build: ./server
+#     container_name: docchat-server
+#     ports:
+#       - "5000:5000"
+#     depends_on:
+#       - valkey
+#       - qdrant
+#     environment:
+#       VALKEY_URL: redis://valkey:6379
+#       QDRANT_URL: http://qdrant:6333
+
+# volumes:
+#   valkey_data:
+#   qdrant_storage:

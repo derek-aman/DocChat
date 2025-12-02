@@ -16,7 +16,7 @@ const worker = new Worker(
     const docs = await loader.load();
 
     const splitter = new CharacterTextSplitter({ chunkSize: 1000, chunkOverlap: 200 });
-const docsSplitted = await splitter.splitDocuments(docs);
+    const docsSplitted = await splitter.splitDocuments(docs);
 
     const embeddings = new GoogleGenerativeAIEmbeddings({
       model: 'models/gemini-embedding-exp-03-07',
@@ -45,6 +45,7 @@ const docsSplitted = await splitter.splitDocuments(docs);
     },
   }
 );
+
 
 worker.on('completed', (job) => console.log(`✅ Job ${job.id} completed.`));
 worker.on('failed', (job, err) => console.error(`❌ Job ${job.id} failed:`, err));

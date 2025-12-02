@@ -13,6 +13,7 @@ const FileUploadCard = ({
   const [isDragging, setIsDragging] = useState(false);
   const [error, setError] = useState('');
   const fileInputRef = useRef(null);
+  const [loading, setLoading] = useState(false);
 
   const handleDragOver = e => {
     e.preventDefault();
@@ -99,6 +100,7 @@ const FileUploadCard = ({
       formData.append('pdf', file);
 
       try {
+        setLoading(true);
         const res = await fetch('http://localhost:8000/upload/pdf/', {
           method: 'POST',
           body: formData
@@ -108,14 +110,16 @@ const FileUploadCard = ({
         console.log('Upload successful:', data);
       } catch (err) {
         console.error('Upload error:', err);
-      }
+      } finally {
+      setLoading(false); // stop loading
+    }
     });
 
     el.click();
   };
 
   return (
-    <div className='w-full min-h-screen '>
+    <div id="upload" className='w-full min-h-screen '>
       <div className='mx-12  bg-gradient-to-r from-[#1c1c1b] t0-[#e99b63] rounded-4xl '>
        <h1 className='font-["Neue Montreal"] mt-45 p-20  text-center text-[3vw] leading-[4.6vw] tracking-tight '>
           Got a PDF? Let's talk! Upload your file to begin chatting with it.
@@ -130,7 +134,7 @@ const FileUploadCard = ({
       </div>
 
       {/* Drag & Drop Area */}
-      <div className="p-6">
+      <div onDragOver={handleDragOver} className="p-6">
         
         <div
           className={`
@@ -171,12 +175,18 @@ const FileUploadCard = ({
 
         
 
+        
+
         {/* Action Buttons */}
-        <div className="mt-4 pt-4 mx-40  my-10 border-border justify-center items-center ">
+        <div onClick={handleFileUploadButtonClick} className="mt-4 pt-4 mx-40  my-10 border-border justify-center items-center cursor-pointer ">
            <div className='relative w-[95%] sm:w-48 h-10 bg-gradient-to-r from-[#f1ac7b] t0-[#e99b63] shadow-[0_0_15px_rgba(255,255,255,0.4)] rounded-full'>
-                <div className='absolute inset-[3px] bg-black rounded-full flex items-center justify-center gap-1'>
-                    Upload PDF
-                </div>
+                {loading ? (
+      <span className="text-white">Uploading...</span> // can replace with spinner icon
+    ) : (
+      <div className='absolute inset-[3px] bg-black rounded-full flex items-center justify-center gap-1'>
+        Upload PDF
+      </div>
+    )}
             </div>
          
         </div>

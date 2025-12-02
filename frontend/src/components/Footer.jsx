@@ -20,7 +20,7 @@ export default function Footer() {
                     Start Conversation
                 </div>
             </div>
-          <p className="mt-4 text-xs text-gray-400">Built with Passion & AI 🚀</p>
+          <p className="mt-4 text-xs text-gray-400">Built with Passion & AI</p>
         </div>
 
         {/* Right section: Socials */}
@@ -34,9 +34,9 @@ export default function Footer() {
       {/* Bottom: Navigation & copyright */}
       <div className="mt-12 border-t border-gray-700 pt-6 flex flex-col md:flex-row justify-between text-xs text-gray-500">
         <div className="flex space-x-6 mb-4 md:mb-0">
-          <a href="#">Upload</a>
+          <a href="#upload">Upload</a>
           <a href="#">Chat</a>
-          <a href="#">About</a>
+          <a href="#about">About</a>
           <a href="#">Contact</a>
         </div>
         <p>© {new Date().getFullYear()} DocChat. All rights reserved.</p>
