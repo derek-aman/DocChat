@@ -12,7 +12,7 @@
   "license": "ISC",
   "type": "module",
   "dependencies": {
-    "@google/genai": "^1.9.0",
+    "@google/generative-ai": "^0.24.1",
     "@langchain/community": "^0.3.48",
     "@langchain/core": "^0.3.62",
     "@langchain/google-genai": "^0.2.14",
@@ -23,6 +23,7 @@
     "cors": "^2.8.5",
     "dotenv": "^17.2.0",
     "express": "^5.1.0",
+    "ioredis": "^5.9.1",
     "langchain": "^0.3.29",
     "multer": "^2.0.1",
     "pdf-parse": "^1.1.1"

@@ -2,26 +2,27 @@ import express from 'express';
 import multer from 'multer';
 import cors from 'cors';
 import {Queue} from 'bullmq';
+import { connection } from './redis.js';
+
 import 'dotenv/config';
-import { GoogleGenAI } from "@google/genai";
+
+import { GoogleGenerativeAI } from "@google/generative-ai";
 // import { CharacterTextSplitter } from '@langchain/textsplitters';
 import { GoogleGenerativeAIEmbeddings } from '@langchain/google-genai';  // ✅ Ensure this import exists
 import { QdrantVectorStore } from '@langchain/qdrant';
 
 
 
-const ai = new GoogleGenAI({
-    apiKey: process.env.GOOGLE_API_KEY,
-    
-});
+const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY, { checkCompatibility: false });
 
 
 const queue = new Queue('file-upload-queue', {
-    connection:{
-        host: 'localhost',
-        port: 6380,
+    // connection:{
+    //     host: 'localhost',
+    //     port: 6380,
 
-    },
+    // },
+    connection,
 });
 
 
@@ -62,49 +63,67 @@ app.post("/upload/pdf",upload.single("pdf"),async (req, res) =>{
 });
 
 app.get('/chat', async (req, res) => {
-  const userQuery =  req.query.message;
-   
-    
-      
+  try {
+    const userQuery = req.query.message;
 
-   
-  const embeddings = new GoogleGenerativeAIEmbeddings({
-      model: 'models/gemini-embedding-exp-03-07',
+    const embeddings = new GoogleGenerativeAIEmbeddings({
+      model: 'models/gemini-embedding-exp-03-07', // Updated to a standard embedding model name
+      // model: 'text-embedding-004',
       apiKey: process.env.GOOGLE_API_KEY
     });
 
-   const vectorStore = await QdrantVectorStore.fromExistingCollection(
-      
-    //   docsSplitted,
+    const vectorStore = await QdrantVectorStore.fromExistingCollection(
       embeddings,
       {
-        url: 'http://localhost:6443',
+        // url: 'http://localhost:6443',
+        url: process.env.QDRANT_URL,
+        apiKey: process.env.QDRANT_API_KEY,
         collectionName: 'pdf-docs',
       }
     );
-  const ret = vectorStore.asRetriever({
-    k: 2,
-  });
-  const result = await ret.invoke(userQuery);
 
+    const ret = vectorStore.asRetriever({ k: 1 });
+    const result = await ret.invoke(userQuery);
+    const context = result.map(r => r.pageContent).join('\n\n');
 
     const SYSTEM_PROMPT = `
-  You are helfull AI Assistant who answeres the user query based on the available context from PDF File.
-  Context:
-  ${JSON.stringify(result)}
-  `;
+You are a knowledgeable and precise AI assistant.
 
-   const chatResult = await ai.models.generateContent({
-     model: "gemini-2.5-pro",
-     contents: [
-        {"role": "model", "parts": [{ text : SYSTEM_PROMPT}]},
-        {"role": "user", "parts": [{ text : userQuery}]},
-     ],
-   });
+Your task is to answer the user's question **strictly using the provided context** extracted from uploaded PDF documents.
 
-   const first = chatResult.candidates?.[0];
-const text = first?.content?.parts?.[0]?.text;
-   return res.json({content: text, docs: result});
+Rules:
+- Use ONLY the information present in the context.
+- If the answer is not explicitly available in the context, say:
+  "I couldn't find this information in the provided document."
+- Do NOT make assumptions or add external knowledge.
+- Be concise, clear, and well-structured.
+- If relevant, use bullet points or numbered steps.
+- Preserve technical accuracy and terminology from the document.
+
+Context:
+${context}
+`;
+
+
+    
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+
+    
+    const chatResult = await model.generateContent([
+      SYSTEM_PROMPT, 
+      userQuery
+    ]);
+
+    
+    const text = chatResult.response.text();
+
+    return res.json({ content: text, docs: result });
+  } catch (error) {
+    console.error("Chat Error:", error);
+    res.status(500).json({ error: "Something went wrong" });
+  }
 });
 
-app.listen(8000, () => console.log('server started on PORT: ${8000}'));
+
+app.listen(8000, () => console.log(`server started on PORT: 8000`));
+
