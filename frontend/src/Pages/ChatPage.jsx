@@ -29,7 +29,7 @@ const ChatPage = () => {
 
     try {
       setIsTyping(true);
-      const res = await fetch(`http://localhost:8000/chat?message=${encodeURIComponent(text)}`);
+      const res = await fetch(`https://docchat-kr3k.onrender.com/chat?message=${encodeURIComponent(text)}`);
       const data = await res.json();
 
       // Typing effect simulation

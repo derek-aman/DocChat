@@ -101,7 +101,7 @@ const FileUploadCard = ({
 
       try {
         setLoading(true);
-        const res = await fetch('http://localhost:8000/upload/pdf/', {
+        const res = await fetch('https://docchat-kr3k.onrender.com/upload/pdf/', {
           method: 'POST',
           body: formData
         });
